@@ -7,180 +7,137 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #F8F8F8;
-    --card: #FFFFFF;
-    --accent: #FF7F50;
-    --green: #4CAF50;
-    --hero: #212121;
-    --secondary: #757575;
-    --border: #EEEEEE;
-    --radius: 16px;
-    --shadow: 0px 4px 12px rgba(0,0,0,0.04);
-    --chart-orange: #FF7F50;
-    --chart-blue: #4A90D9;
-    --chart-yellow: #F5A623;
-    --chart-purple: #9B59B6;
-    --chart-sage: #7CB342;
-    --chart-grey: #90A4AE;
+    --bg: #F8F8F8; --card: #FFFFFF; --accent: #FF7F50;
+    --green: #4CAF50; --red: #E53935; --hero: #212121;
+    --secondary: #757575; --border: #EEEEEE;
+    --radius: 16px; --shadow: 0px 4px 12px rgba(0,0,0,0.04);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: var(--bg);
-    color: var(--hero);
-    min-height: 100vh;
-    padding: 32px 24px;
-    -webkit-font-smoothing: antialiased;
+    background: var(--bg); color: var(--hero); min-height: 100vh;
+    padding: 32px 24px; -webkit-font-smoothing: antialiased;
   }
   .container { max-width: 1120px; margin: 0 auto; }
-  .date-label {
-    font-size: 13px; color: var(--secondary); margin-bottom: 20px;
-    letter-spacing: 0.3px;
-  }
+  .date-label { font-size: 13px; color: var(--secondary); margin-bottom: 20px; letter-spacing: 0.3px; }
 
-  /* Top Banner */
+  /* Hero */
   .hero-banner {
-    background: var(--card); border-radius: var(--radius);
-    padding: 36px 40px; margin-bottom: 24px;
-    box-shadow: var(--shadow); display: flex;
-    justify-content: space-between; align-items: flex-end;
-    flex-wrap: wrap; gap: 20px;
+    background: var(--card); border-radius: var(--radius); padding: 28px 32px;
+    margin-bottom: 20px; box-shadow: var(--shadow);
+    display: flex; justify-content: space-between; align-items: flex-end;
+    flex-wrap: wrap; gap: 16px;
   }
-  .hero-banner .label {
-    font-size: 13px; color: var(--secondary); letter-spacing: 0.8px;
-    text-transform: uppercase; margin-bottom: 6px;
-  }
-  .hero-banner .value {
-    font-size: 44px; font-weight: 700; color: var(--hero);
-    letter-spacing: -1px; line-height: 1;
-  }
-  .hero-banner .gain {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 16px; font-weight: 600; padding: 6px 14px;
-    border-radius: 20px; margin-top: 8px;
-  }
-  .gain.positive { color: var(--green); background: rgba(76,175,80,0.08); }
-  .gain.negative { color: #E53935; background: rgba(229,57,53,0.08); }
-  .hero-banner .meta { font-size: 13px; color: var(--secondary); margin-top: 4px; }
+  .hero-banner .label { font-size: 12px; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .hero-banner .value { font-size: 38px; font-weight: 700; color: var(--hero); letter-spacing: -1px; line-height: 1; }
+  .hero-banner .gain { display: inline-flex; align-items: center; gap: 5px; font-size: 15px; font-weight: 600; padding: 5px 12px; border-radius: 20px; margin-top: 6px; }
+  .gain.up { color: var(--green); background: rgba(76,175,80,0.08); }
+  .gain.down { color: var(--red); background: rgba(229,57,53,0.08); }
+  .hero-banner .meta { font-size: 12px; color: var(--secondary); margin-top: 2px; }
 
-  /* Charts Row */
-  .charts-row {
-    display: grid; grid-template-columns: 1.35fr 0.65fr;
-    gap: 24px; margin-bottom: 24px;
+  /* ETF Tabs */
+  .etf-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .etf-tab {
+    padding: 10px 18px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card); cursor: pointer; font-size: 13px; font-weight: 600;
+    color: var(--secondary); transition: all 0.2s; font-family: inherit;
+    display: flex; align-items: center; gap: 8px;
   }
+  .etf-tab:hover { border-color: var(--accent); color: var(--hero); }
+  .etf-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .etf-tab .tab-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .etf-tab.active .tab-dot { background: #fff; }
+  .etf-tab .tab-change { font-size: 11px; opacity: 0.85; }
+
+  /* Chart Card */
   .chart-card {
-    background: var(--card); border-radius: var(--radius);
-    padding: 28px 30px; box-shadow: var(--shadow);
+    background: var(--card); border-radius: var(--radius); padding: 24px 28px;
+    box-shadow: var(--shadow); margin-bottom: 16px;
   }
-  .chart-card h3 {
-    font-size: 15px; font-weight: 600; color: var(--hero);
-    margin-bottom: 20px; letter-spacing: 0.2px;
-  }
-  .chart-card .area-chart-wrap { position: relative; height: 260px; }
-  .chart-card .donut-wrap {
-    display: flex; align-items: center; gap: 28px;
-    flex-wrap: wrap; justify-content: center;
-  }
-  .donut-wrap canvas { max-width: 180px; max-height: 180px; }
-  .donut-legend { flex: 1; min-width: 140px; }
-  .donut-legend .item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 7px 0; font-size: 13px; color: var(--hero);
-  }
-  .donut-legend .dot {
-    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-  }
-  .donut-legend .val { margin-left: auto; font-weight: 600; font-size: 13px; color: var(--hero); }
-
-  /* Holdings List */
-  .holdings-card {
-    background: var(--card); border-radius: var(--radius);
-    padding: 28px 30px; box-shadow: var(--shadow); margin-bottom: 24px;
-  }
-  .holdings-card h3 {
-    font-size: 15px; font-weight: 600; color: var(--hero);
-    margin-bottom: 18px; letter-spacing: 0.2px;
-  }
-  .holding-row {
-    display: flex; align-items: center; gap: 16px;
-    padding: 16px 0; border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-  .holding-row:last-child { border-bottom: none; }
-  .holding-icon {
-    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 700; color: #fff; letter-spacing: 0.5px;
-  }
-  .icon-c1 { background: #FFE0D5; color: #FF7F50; }
-  .icon-c2 { background: #D5E5F7; color: #4A90D9; }
-  .icon-c3 { background: #E8F5E0; color: #7CB342; }
-  .icon-c4 { background: #EDE0F2; color: #9B59B6; }
-  .holding-info { flex: 1; min-width: 120px; }
-  .holding-info .name { font-size: 14px; font-weight: 600; color: var(--hero); }
-  .holding-info .code { font-size: 12px; color: var(--secondary); margin-top: 2px; }
-  .holding-price { text-align: right; min-width: 90px; }
-  .holding-price .val { font-size: 16px; font-weight: 700; color: var(--hero); }
-  .holding-price .lbl { font-size: 11px; color: var(--secondary); }
-  .holding-change { text-align: right; min-width: 80px; }
-  .holding-change .pct {
-    font-size: 14px; font-weight: 600; padding: 4px 10px;
-    border-radius: 6px; display: inline-block;
-  }
-  .holding-change .pct.up { color: var(--green); background: rgba(76,175,80,0.08); }
-  .holding-change .pct.down { color: #E53935; background: rgba(229,57,53,0.08); }
-  .holding-volume { text-align: right; min-width: 90px; font-size: 13px; color: var(--secondary); }
-  .holding-volume strong { color: var(--hero); font-weight: 600; }
-
-  /* Bottom Bar */
-  .footer-card {
-    background: var(--card); border-radius: var(--radius);
-    padding: 22px 30px; box-shadow: var(--shadow);
+  .chart-toolbar {
     display: flex; justify-content: space-between; align-items: center;
-    flex-wrap: wrap; gap: 14px;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
   }
-  .footer-card .disclaimer {
-    font-size: 12px; color: var(--secondary); line-height: 1.6;
-    max-width: 500px;
+  .chart-toolbar h3 { font-size: 15px; font-weight: 600; }
+  .chart-toolbar .btn-group { display: flex; gap: 4px; }
+  .btn-sm {
+    padding: 6px 13px; border-radius: 7px; border: 1px solid var(--border);
+    background: #fff; cursor: pointer; font-size: 12px; color: var(--secondary);
+    font-family: inherit; font-weight: 500; transition: all 0.15s;
   }
-  .footer-card .tags { display: flex; gap: 8px; flex-wrap: wrap; }
-  .footer-card .tag {
-    font-size: 11px; padding: 5px 12px; border-radius: 14px;
-    background: rgba(255,127,80,0.08); color: var(--accent);
-    font-weight: 600; letter-spacing: 0.3px;
-  }
+  .btn-sm:hover { border-color: var(--accent); color: var(--hero); }
+  .btn-sm.active { background: rgba(255,127,80,0.1); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+  .chart-wrap { position: relative; height: 280px; }
+  .chart-wrap.vol { position: relative; height: 120px; margin-top: 4px; }
+  .chart-divider { border-top: 1px dashed var(--border); margin: 8px 0 0; }
 
-  .refresh-bar {
-    display: flex; justify-content: flex-end; margin-bottom: 20px;
+  /* Donut row */
+  .mini-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px; }
+  .mini-card {
+    background: var(--card); border-radius: var(--radius); padding: 20px 22px;
+    box-shadow: var(--shadow);
   }
-  .btn {
-    padding: 10px 22px; border-radius: 10px; border: none;
-    font-size: 13px; font-weight: 600; cursor: pointer;
-    font-family: inherit; transition: all 0.2s; letter-spacing: 0.3px;
-  }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: #e87045; }
-  .btn-secondary { background: transparent; color: var(--secondary); }
-  .btn-secondary:hover { color: var(--hero); }
+  .mini-card h3 { font-size: 13px; font-weight: 600; color: var(--secondary); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .mini-card .donut-row { display: flex; align-items: center; gap: 20px; }
+  .mini-card canvas { max-width: 120px; max-height: 120px; }
+  .mini-legend { flex: 1; }
+  .mini-legend .item { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 12px; }
+  .mini-legend .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .mini-legend .val { margin-left: auto; font-weight: 600; font-size: 12px; }
 
-  /* Responsive */
+  /* Holdings */
+  .holdings-card {
+    background: var(--card); border-radius: var(--radius); padding: 20px 24px;
+    box-shadow: var(--shadow); margin-bottom: 16px;
+  }
+  .holdings-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+  .holding-row {
+    display: flex; align-items: center; gap: 14px; padding: 13px 0;
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .holding-row:hover { background: rgba(255,127,80,0.02); }
+  .holding-row:last-child { border-bottom: none; }
+  .holding-row.selected { background: rgba(255,127,80,0.05); border-radius: 8px; padding: 13px 8px; margin: 0 -8px; }
+  .h-icon { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .h-c1 { background: #FFE0D5; color: #FF7F50; }
+  .h-c2 { background: #D5E5F7; color: #4A90D9; }
+  .h-c3 { background: #E8F5E0; color: #7CB342; }
+  .h-c4 { background: #EDE0F2; color: #9B59B6; }
+  .h-info { flex: 1; min-width: 100px; }
+  .h-info .name { font-size: 14px; font-weight: 600; }
+  .h-info .code { font-size: 11px; color: var(--secondary); margin-top: 2px; }
+  .h-price { text-align: right; min-width: 80px; }
+  .h-price .val { font-size: 15px; font-weight: 700; }
+  .h-price .lbl { font-size: 10px; color: var(--secondary); }
+  .h-change { text-align: right; min-width: 75px; }
+  .h-change .pct { font-size: 13px; font-weight: 600; padding: 3px 9px; border-radius: 5px; }
+  .h-change .pct.up { color: var(--green); background: rgba(76,175,80,0.08); }
+  .h-change .pct.down { color: var(--red); background: rgba(229,57,53,0.08); }
+
+  /* Footer */
+  .footer-card {
+    background: var(--card); border-radius: var(--radius); padding: 18px 24px;
+    box-shadow: var(--shadow); display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 12px;
+  }
+  .footer-card .disclaimer { font-size: 11px; color: var(--secondary); line-height: 1.6; max-width: 480px; }
+  .footer-card .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .footer-card .tag { font-size: 10px; padding: 4px 10px; border-radius: 12px; background: rgba(255,127,80,0.08); color: var(--accent); font-weight: 600; }
+
+  .loading { text-align: center; padding: 40px; color: var(--secondary); font-size: 13px; }
+  .err-msg { color: var(--secondary); font-size: 12px; text-align: center; padding: 10px; }
+
   @media (max-width: 768px) {
-    body { padding: 16px 12px; }
-    .charts-row { grid-template-columns: 1fr; }
-    .hero-banner { padding: 24px 22px; }
-    .hero-banner .value { font-size: 32px; }
-    .chart-card { padding: 20px 18px; }
-    .holdings-card { padding: 20px 18px; }
-    .footer-card { padding: 16px 18px; }
-    .holding-row { gap: 10px; padding: 12px 0; }
-    .holding-volume { display: none; }
-    .donut-wrap { flex-direction: column; align-items: center; }
-    .donut-legend { min-width: auto; width: 100%; }
-  }
-  @media (max-width: 480px) {
-    .hero-banner .value { font-size: 26px; }
-    .holding-price { min-width: 70px; }
-    .holding-change { min-width: 60px; }
+    body { padding: 12px 8px; }
+    .hero-banner { padding: 20px 18px; }
+    .hero-banner .value { font-size: 28px; }
+    .chart-card { padding: 16px 12px; }
+    .chart-wrap { height: 220px; }
+    .chart-wrap.vol { height: 100px; }
+    .mini-row { grid-template-columns: 1fr; }
+    .holding-row { gap: 8px; padding: 10px 0; }
+    .h-price { min-width: 60px; }
   }
 </style>
 </head>
@@ -188,7 +145,7 @@
 <div class="container">
   <div class="date-label" id="dateLabel">--</div>
 
-  <!-- Top Banner -->
+  <!-- Hero -->
   <div class="hero-banner">
     <div>
       <div class="label">资产总值</div>
@@ -201,18 +158,36 @@
     </div>
   </div>
 
-  <!-- Charts -->
-  <div class="charts-row">
-    <div class="chart-card">
-      <h3>资产增长趋势</h3>
-      <div class="area-chart-wrap"><canvas id="areaChart"></canvas></div>
+  <!-- ETF Tabs -->
+  <div class="etf-tabs" id="etfTabs"></div>
+
+  <!-- Main Chart -->
+  <div class="chart-card">
+    <div class="chart-toolbar">
+      <h3 id="chartTitle">--</h3>
+      <div class="btn-group" id="periodBtns"></div>
     </div>
-    <div class="chart-card">
+    <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
+    <div class="chart-divider"></div>
+    <div class="chart-wrap vol"><canvas id="volChart"></canvas></div>
+    <div class="chart-toolbar" style="margin-top:10px;margin-bottom:0;justify-content:center">
+      <div class="btn-group" id="freqBtns"></div>
+    </div>
+    <div class="err-msg" id="chartMsg" style="display:none"></div>
+  </div>
+
+  <!-- Donut + Stats -->
+  <div class="mini-row">
+    <div class="mini-card">
       <h3>资产配置</h3>
-      <div class="donut-wrap">
+      <div class="donut-row">
         <canvas id="donutChart"></canvas>
-        <div class="donut-legend" id="donutLegend"></div>
+        <div class="mini-legend" id="donutLegend"></div>
       </div>
+    </div>
+    <div class="mini-card" style="display:flex;flex-direction:column;gap:14px;justify-content:center">
+      <h3>当日概览</h3>
+      <div id="dayStats" style="font-size:13px;color:var(--secondary);line-height:2"></div>
     </div>
   </div>
 
@@ -224,232 +199,350 @@
 
   <!-- Footer -->
   <div class="footer-card">
-    <div class="disclaimer">
-      数据仅供参考，不构成投资建议。过往表现不代表未来收益。投资有风险，入市需谨慎。
-    </div>
-    <div class="tags">
-      <span class="tag">#投资组合</span>
-      <span class="tag">#资产配置</span>
-      <span class="tag">#ETF</span>
-    </div>
+    <div class="disclaimer">数据仅供参考，不构成投资建议。过往表现不代表未来收益。投资有风险，入市需谨慎。</div>
+    <div class="tags"><span class="tag">#投资组合</span><span class="tag">#资产配置</span><span class="tag">#ETF</span></div>
   </div>
 </div>
 
 <script>
+// ---- Config ----
 const ETF_CONFIG = [
-  { code: '515080', name: '中证红利ETF',    color: 'icon-c1', chartColor: '#FF7F50', label: '红利' },
-  { code: '588000', name: '科创50ETF',      color: 'icon-c2', chartColor: '#4A90D9', label: '科创' },
-  { code: '512010', name: '医药ETF',        color: 'icon-c3', chartColor: '#7CB342', label: '医药' },
-  { code: '589720', name: '创新药ETF',      color: 'icon-c4', chartColor: '#9B59B6', label: '创新药' }
+  { code: '515080', name: '中证红利ETF', c: 'h-c1', cc: '#FF7F50', label: '红利', secid: '1.515080' },
+  { code: '588000', name: '科创50ETF',   c: 'h-c2', cc: '#4A90D9', label: '科创', secid: '1.588000' },
+  { code: '512010', name: '医药ETF',     c: 'h-c3', cc: '#7CB342', label: '医药', secid: '1.512010' },
+  { code: '589720', name: '创新药ETF',   c: 'h-c4', cc: '#9B59B6', label: '创新药', secid: '1.589720' }
+];
+const HOLDINGS = [50000, 30000, 80000, 60000];
+const PERIODS = [
+  { label: '1月', days: 22 }, { label: '3月', days: 66 },
+  { label: '6月', days: 132 }, { label: '1年', days: 253 },
+  { label: '3年', days: 760 }
+];
+const FREQS = [
+  { label: '日线', klt: 101 }, { label: '周线', klt: 102 }, { label: '月线', klt: 103 }
 ];
 
-const HOLDINGS = [
-  { shares: 50000, avgCost: 1.56 },
-  { shares: 30000, avgCost: 1.62 },
-  { shares: 80000, avgCost: 0.46 },
-  { shares: 60000, avgCost: 0.90 }
-];
+let state = { etfIdx: 0, periodIdx: 3, freqIdx: 0, etfData: [], historyCache: {} };
+let priceChart = null, volChart = null, donutChart = null;
 
-function getMockData() {
+// ---- Mock (fallback) ----
+function mockData() {
   const d = new Date().getDate();
-  const rnd = (base, range) => +(base + (Math.sin(d * 7 + base * 3) * 0.5 + 0.5) * range).toFixed(3);
+  const rnd = (b,r) => +(b + (Math.sin(d*7+b*3)*0.5+0.5)*r).toFixed(3);
   return [
-    { price: rnd(1.58, 0.08), change: rnd(0.30, 1.20),  volume: rnd(2.3, 1.5), turnover: rnd(3.8, 2.0) },
-    { price: rnd(1.64, 0.12), change: rnd(-0.50, 2.00), volume: rnd(6.5, 3.0), turnover: rnd(10.7, 4.0) },
-    { price: rnd(0.48, 0.04), change: rnd(0.80, 1.50),  volume: rnd(8.0, 4.0), turnover: rnd(4.1, 2.0) },
-    { price: rnd(0.92, 0.06), change: rnd(-0.20, 1.80), volume: rnd(1.8, 1.0), turnover: rnd(1.6, 0.8) }
+    { price: rnd(1.58,0.08), change: rnd(0.3,1.2), vol: rnd(2.3,1.5), turnover: rnd(3.8,2) },
+    { price: rnd(1.64,0.12), change: rnd(-0.5,2), vol: rnd(6.5,3), turnover: rnd(10.7,4) },
+    { price: rnd(0.48,0.04), change: rnd(0.8,1.5), vol: rnd(8,4), turnover: rnd(4.1,2) },
+    { price: rnd(0.92,0.06), change: rnd(-0.2,1.8), vol: rnd(1.8,1), turnover: rnd(1.6,0.8) }
   ];
 }
 
-function getHistoryData(data) {
-  const days = 30;
-  const result = [];
-  const initVals = data.map((d, i) => HOLDINGS[i].shares * (d.price - d.price * d.change / 100));
-  for (let t = 0; t < days; t++) {
-    const noise = Math.sin(t * 0.4) * 0.015 + (Math.random() - 0.5) * 0.008;
-    const total = initVals.reduce((s, v, i) => s + v * (1 + noise * (i + 1) * 0.3), 0);
-    result.push({ x: t, y: Math.round(total * 100) / 100 });
-  }
-  // Append today
-  const todayTotal = data.reduce((s, d, i) => s + HOLDINGS[i].shares * d.price, 0);
-  result.push({ x: days, y: Math.round(todayTotal * 100) / 100 });
-  return result;
-}
-
-let areaChart = null, donutChart = null;
-
-function renderDate() {
-  const now = new Date();
-  const w = ['日','一','二','三','四','五','六'];
-  document.getElementById('dateLabel').textContent =
-    `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 星期${w[now.getDay()]} · 复盘报告`;
-}
-
-function renderHero(data) {
-  const total = data.reduce((s, d, i) => s + HOLDINGS[i].shares * d.price, 0);
-  const prevTotal = data.reduce((s, d, i) => s + HOLDINGS[i].shares * (d.price - d.price * d.change / 100), 0);
-  const gainPct = prevTotal > 0 ? ((total - prevTotal) / prevTotal * 100) : 0;
-  document.getElementById('totalValue').textContent = '¥' + total.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  document.getElementById('holdingsCount').textContent = `共持有 ${ETF_CONFIG.length} 只 ETF`;
-  const gainEl = document.getElementById('totalGain');
-  const up = gainPct >= 0;
-  gainEl.className = 'gain ' + (up ? 'positive' : 'negative');
-  gainEl.innerHTML = (up ? '▲' : '▼') + ' ' + Math.abs(gainPct).toFixed(2) + '%';
-}
-
-function renderAreaChart(data) {
-  const history = getHistoryData(data);
-  const ctx = document.getElementById('areaChart').getContext('2d');
-  if (areaChart) areaChart.destroy();
-
-  const gradient = ctx.createLinearGradient(0, 0, 0, 260);
-  gradient.addColorStop(0, 'rgba(255,127,80,0.18)');
-  gradient.addColorStop(1, 'rgba(255,127,80,0)');
-
-  areaChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      datasets: [{
-        label: '资产总值',
-        data: history,
-        borderColor: '#FF7F50',
-        borderWidth: 2,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-        pointHoverBackgroundColor: '#FF7F50',
-        pointHoverBorderColor: '#fff',
-        pointHoverBorderWidth: 2,
-        fill: true,
-        backgroundColor: gradient,
-        tension: 0.4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { intersect: false, mode: 'index' },
-      plugins: { legend: { display: false } },
-      scales: {
-        x: {
-          type: 'linear',
-          ticks: { display: false },
-          grid: { display: false },
-          border: { display: false }
-        },
-        y: {
-          position: 'right',
-          ticks: {
-            color: '#757575', font: { size: 11 },
-            callback: v => '¥' + (v / 10000).toFixed(1) + '万',
-            maxTicksLimit: 5
-          },
-          grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }
-        }
-      }
-    }
+// ---- API fetch ----
+async function fetchHistory(secid, klt, beg, end) {
+  const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57&klt=${klt}&fqt=0&beg=${beg}&end=${end}&lmt=800`;
+  const resp = await fetch(url);
+  const json = await resp.json();
+  if (!json || !json.data || !json.data.klines) return [];
+  return json.data.klines.map(line => {
+    const parts = line.split(',');
+    return {
+      date: parts[0],
+      open: +parts[1], close: +parts[2], high: +parts[3], low: +parts[4],
+      volume: +parts[5], turnover: +parts[6]
+    };
   });
 }
 
-function renderDonutChart(data) {
-  const ctx = document.getElementById('donutChart').getContext('2d');
-  if (donutChart) donutChart.destroy();
-  const values = data.map((d, i) => HOLDINGS[i].shares * d.price);
-  const total = values.reduce((a, b) => a + b, 0);
+function begEnd(periodDays) {
+  const end = new Date();
+  end.setHours(23,59,59,999);
+  const start = new Date(end);
+  start.setDate(start.getDate() - Math.ceil(periodDays * 1.5));
+  const fmt = d => d.toISOString().slice(0,10).replace(/-/g,'');
+  return [fmt(start), fmt(end)];
+}
 
-  donutChart = new Chart(ctx, {
-    type: 'doughnut',
+// ---- Render ----
+function renderDate() {
+  const w = ['日','一','二','三','四','五','六'];
+  const n = new Date();
+  document.getElementById('dateLabel').textContent = `${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日 星期${w[n.getDay()]} · 复盘报告`;
+}
+
+function renderTabs() {
+  const el = document.getElementById('etfTabs');
+  el.innerHTML = ETF_CONFIG.map((c,i) => {
+    const d = state.etfData[i] || {};
+    const up = (d.change||0) >= 0;
+    const cls = i === state.etfIdx ? 'active' : '';
+    return `<button class="etf-tab ${cls}" onclick="switchETF(${i})">
+      <span class="tab-dot" style="background:${c.cc}"></span>
+      ${c.name} <span class="tab-change" style="color:${up?'var(--green)':'var(--red)'}">${up?'+':''}${(d.change||0).toFixed(2)}%</span>
+    </button>`;
+  }).join('');
+}
+
+function renderHero() {
+  if (!state.etfData.length) return;
+  const total = state.etfData.reduce((s,d,i) => s + HOLDINGS[i]*d.price, 0);
+  const prev = state.etfData.reduce((s,d,i) => s + HOLDINGS[i]*(d.price - d.price*d.change/100), 0);
+  const gp = prev>0 ? ((total-prev)/prev*100) : 0;
+  document.getElementById('totalValue').textContent = '¥'+total.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('holdingsCount').textContent = `共持有 ${ETF_CONFIG.length} 只 ETF`;
+  const g = document.getElementById('totalGain');
+  const up = gp>=0;
+  g.className = 'gain '+(up?'up':'down');
+  g.innerHTML = (up?'▲':'▼')+' '+Math.abs(gp).toFixed(2)+'%';
+}
+
+function renderPeriodBtns() {
+  document.getElementById('periodBtns').innerHTML = PERIODS.map((p,i) =>
+    `<button class="btn-sm ${i===state.periodIdx?'active':''}" onclick="switchPeriod(${i})">${p.label}</button>`
+  ).join('');
+}
+
+function renderFreqBtns() {
+  document.getElementById('freqBtns').innerHTML = FREQS.map((f,i) =>
+    `<button class="btn-sm ${i===state.freqIdx?'active':''}" onclick="switchFreq(${i})">${f.label}</button>`
+  ).join('');
+}
+
+function renderPriceChart(history) {
+  const ctx = document.getElementById('priceChart').getContext('2d');
+  if (priceChart) priceChart.destroy();
+  const labels = history.map(h => h.date.slice(5));
+  const closes = history.map(h => h.close);
+
+  const gradient = ctx.createLinearGradient(0,0,0,280);
+  gradient.addColorStop(0, 'rgba(255,127,80,0.15)');
+  gradient.addColorStop(1, 'rgba(255,127,80,0)');
+
+  priceChart = new Chart(ctx, {
+    type: 'line',
     data: {
-      labels: ETF_CONFIG.map(c => c.name),
+      labels,
       datasets: [{
-        data: values,
-        backgroundColor: ETF_CONFIG.map(c => c.chartColor),
-        borderColor: '#FFFFFF',
-        borderWidth: 3,
-        borderRadius: 4,
-        hoverBorderWidth: 3
+        label: '收盘价',
+        data: closes,
+        borderColor: ETF_CONFIG[state.etfIdx].cc,
+        borderWidth: 1.8,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHoverBackgroundColor: ETF_CONFIG[state.etfIdx].cc,
+        fill: true,
+        backgroundColor: gradient,
+        tension: 0.3
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      cutout: '68%',
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
       plugins: {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: ctx => {
-              const pct = ((ctx.raw / total) * 100).toFixed(1);
-              return ctx.label + ': ¥' + ctx.raw.toLocaleString() + ' (' + pct + '%)';
-            }
+            label: ctx => '收盘 ¥' + ctx.raw.toFixed(3)
           }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#757575', font: { size: 10 }, maxTicksLimit: 8, autoSkip: true },
+          grid: { display: false }
+        },
+        y: {
+          position: 'right',
+          ticks: { color: '#757575', font: { size: 10 }, callback: v => '¥'+v.toFixed(3), maxTicksLimit: 6 },
+          grid: { color: 'rgba(0,0,0,0.04)' }
         }
       }
     }
   });
+}
 
-  // Legend
-  const legendEl = document.getElementById('donutLegend');
-  legendEl.innerHTML = ETF_CONFIG.map((c, i) => {
-    const pct = ((values[i] / total) * 100).toFixed(1);
-    return `<div class="item">
-      <span class="dot" style="background:${c.chartColor}"></span>
-      <span>${c.label}</span>
-      <span class="val">${pct}%</span>
-    </div>`;
+function renderVolChart(history) {
+  const ctx = document.getElementById('volChart').getContext('2d');
+  if (volChart) volChart.destroy();
+  const labels = history.map(h => h.date.slice(5));
+  const volumes = history.map(h => h.volume);
+  const closes = history.map(h => h.close);
+  const colors = [];
+  for (let i=0; i<history.length; i++) {
+    const prev = i>0 ? closes[i-1] : closes[i];
+    colors.push(closes[i] >= prev ? 'rgba(229,57,53,0.45)' : 'rgba(76,175,80,0.45)');
+  }
+  volChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: '成交量(手)',
+        data: volumes,
+        backgroundColor: colors,
+        borderWidth: 0,
+        borderRadius: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => (ctx.raw/10000).toFixed(1)+'万手' } }
+      },
+      scales: {
+        x: {
+          ticks: { display: false },
+          grid: { display: false }
+        },
+        y: {
+          position: 'right',
+          ticks: { color: '#757575', font: { size: 9 }, callback: v => (v/10000).toFixed(0)+'万', maxTicksLimit: 4 },
+          grid: { color: 'rgba(0,0,0,0.04)' }
+        }
+      }
+    }
+  });
+}
+
+function renderDonut() {
+  if (!state.etfData.length) return;
+  const ctx = document.getElementById('donutChart').getContext('2d');
+  if (donutChart) donutChart.destroy();
+  const values = state.etfData.map((d,i) => HOLDINGS[i]*d.price);
+  const total = values.reduce((a,b)=>a+b,0);
+  donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ETF_CONFIG.map(c=>c.name),
+      datasets: [{
+        data: values,
+        backgroundColor: ETF_CONFIG.map(c=>c.cc),
+        borderColor: '#fff', borderWidth: 3, borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true, cutout: '68%',
+      plugins: { legend: { display: false } }
+    }
+  });
+  document.getElementById('donutLegend').innerHTML = ETF_CONFIG.map((c,i)=>{
+    const pct = ((values[i]/total)*100).toFixed(1);
+    return `<div class="item"><span class="dot" style="background:${c.cc}"></span>${c.label}<span class="val">${pct}%</span></div>`;
   }).join('');
 }
 
-function renderHoldings(data) {
-  const container = document.getElementById('holdingsList');
-  container.innerHTML = data.map((d, i) => {
+function renderDayStats() {
+  const d = state.etfData[state.etfIdx];
+  if (!d) return;
+  document.getElementById('dayStats').innerHTML = `
+    收盘价 <b style="color:var(--hero)">¥${d.price.toFixed(3)}</b><br>
+    涨跌幅 <b style="color:${d.change>=0?'var(--green)':'var(--red)'}">${d.change>=0?'+':''}${d.change.toFixed(2)}%</b><br>
+    成交量 <b style="color:var(--hero)">${d.vol.toFixed(1)}亿手</b><br>
+    成交额 <b style="color:var(--hero)">${d.turnover.toFixed(2)}亿</b>
+  `;
+}
+
+function renderHoldings() {
+  document.getElementById('holdingsList').innerHTML = state.etfData.map((d,i)=>{
     const cfg = ETF_CONFIG[i];
-    const up = d.change >= 0;
-    const marketValue = HOLDINGS[i].shares * d.price;
-    const costValue = HOLDINGS[i].shares * HOLDINGS[i].avgCost;
-    const totalGainPct = ((marketValue - costValue) / costValue * 100);
-    return `
-    <div class="holding-row">
-      <div class="holding-icon ${cfg.color}">${cfg.label}</div>
-      <div class="holding-info">
-        <div class="name">${cfg.name}</div>
-        <div class="code">${cfg.code} · 持有 ${(HOLDINGS[i].shares/10000).toFixed(1)} 万份</div>
-      </div>
-      <div class="holding-price">
-        <div class="val">¥${d.price.toFixed(3)}</div>
-        <div class="lbl">市值 ¥${(marketValue/10000).toFixed(1)}万</div>
-      </div>
-      <div class="holding-change">
-        <span class="pct ${up ? 'up' : 'down'}">${up ? '+' : ''}${d.change.toFixed(2)}%</span>
-        <div class="lbl" style="margin-top:3px;font-size:11px;color:${totalGainPct>=0?'#4CAF50':'#E53935'}">
-          持仓${totalGainPct>=0?'+':''}${totalGainPct.toFixed(2)}%
-        </div>
-      </div>
-      <div class="holding-volume">
-        成交量<br><strong>${d.volume.toFixed(1)}亿手</strong>
-      </div>
-      <div class="holding-volume">
-        成交额<br><strong>${d.turnover.toFixed(2)}亿</strong>
-      </div>
+    const up = d.change>=0;
+    const mv = HOLDINGS[i]*d.price;
+    const avgCost = [1.56,1.62,0.46,0.90][i];
+    const totalGain = ((d.price-avgCost)/avgCost*100);
+    const sel = i===state.etfIdx ? ' selected' : '';
+    return `<div class="holding-row${sel}" onclick="switchETF(${i})">
+      <div class="h-icon ${cfg.c}">${cfg.label}</div>
+      <div class="h-info"><div class="name">${cfg.name}</div><div class="code">${cfg.code} · ${(HOLDINGS[i]/10000).toFixed(1)}万份</div></div>
+      <div class="h-price"><div class="val">¥${d.price.toFixed(3)}</div><div class="lbl">市值 ¥${(mv/10000).toFixed(1)}万</div></div>
+      <div class="h-change"><span class="pct ${up?'up':'down'}">${up?'+':''}${d.change.toFixed(2)}%</span><div class="lbl" style="margin-top:2px;font-size:10px;color:${totalGain>=0?'var(--green)':'var(--red)'}">持仓${totalGain>=0?'+':''}${totalGain.toFixed(2)}%</div></div>
     </div>`;
   }).join('');
 }
 
-async function loadData() {
-  let data = null;
-  try {
-    const resp = await fetch('etf-data.json?' + Date.now());
-    if (resp.ok) data = await resp.json();
-  } catch (_) {}
-  if (!data) data = getMockData();
-
-  renderHero(data);
-  renderAreaChart(data);
-  renderDonutChart(data);
-  renderHoldings(data);
+// ---- Actions ----
+function switchETF(idx) {
+  state.etfIdx = idx;
+  renderTabs();
+  renderHoldings();
+  renderDayStats();
+  loadChart();
 }
 
-renderDate();
-loadData();
+function switchPeriod(idx) {
+  state.periodIdx = idx;
+  renderPeriodBtns();
+  loadChart();
+}
+
+function switchFreq(idx) {
+  state.freqIdx = idx;
+  renderFreqBtns();
+  loadChart();
+}
+
+async function loadChart() {
+  const cfg = ETF_CONFIG[state.etfIdx];
+  const freq = FREQS[state.freqIdx];
+  const period = PERIODS[state.periodIdx];
+  document.getElementById('chartTitle').textContent = `${cfg.name} (${cfg.code}) · ${period.label}·${freq.label}`;
+  const cacheKey = `${cfg.secid}_${freq.klt}_${period.days}`;
+  document.getElementById('chartMsg').style.display = 'none';
+
+  let history = state.historyCache[cacheKey];
+  if (!history) {
+    try {
+      const [beg, end] = begEnd(period.days);
+      history = await fetchHistory(cfg.secid, freq.klt, beg, end);
+      if (history.length > 0) state.historyCache[cacheKey] = history;
+    } catch(e) {}
+  }
+
+  if (!history || history.length === 0) {
+    // Generate mock history as fallback
+    const d = state.etfData[state.etfIdx];
+    const basePrice = d ? d.price : 1.5;
+    const baseVol = d ? d.vol * 10000 : 50000;
+    const points = Math.min(period.days, 200);
+    history = [];
+    for (let i = points; i >= 0; i--) {
+      const dt = new Date(); dt.setDate(dt.getDate() - i * (freq.klt===103?22:freq.klt===102?5:1));
+      const noise = (Math.random()-0.5)*0.04;
+      const price = basePrice * (1 + noise + Math.sin(i*0.15)*0.06);
+      history.push({
+        date: dt.toISOString().slice(0,10),
+        open: price*(1+(Math.random()-0.5)*0.01),
+        close: price, high: price*1.01, low: price*0.99,
+        volume: baseVol*(0.5+Math.random()), turnover: baseVol*price*(0.5+Math.random())
+      });
+    }
+    document.getElementById('chartMsg').style.display = 'block';
+    document.getElementById('chartMsg').textContent = '使用模拟数据（API无法访问或该ETF历史数据不足）';
+  }
+
+  renderPriceChart(history);
+  renderVolChart(history);
+}
+
+// ---- Init ----
+async function init() {
+  renderDate();
+  state.etfData = mockData();
+  try {
+    const resp = await fetch('etf-data.json?'+Date.now());
+    if (resp.ok) { const j = await resp.json(); if (Array.isArray(j) && j.length===4) state.etfData = j; }
+  } catch(_) {}
+
+  renderTabs();
+  renderHero();
+  renderDonut();
+  renderHoldings();
+  renderDayStats();
+  renderPeriodBtns();
+  renderFreqBtns();
+  loadChart();
+}
+
+init();
 </script>
 </body>
 </html>
