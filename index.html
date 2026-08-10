@@ -20,8 +20,9 @@
   }
   .container { max-width: 1120px; margin: 0 auto; }
   .date-label { font-size: 13px; color: var(--secondary); margin-bottom: 20px; letter-spacing: 0.3px; }
+  .live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-right: 6px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  /* Hero */
   .hero-banner {
     background: var(--card); border-radius: var(--radius); padding: 28px 32px;
     margin-bottom: 20px; box-shadow: var(--shadow);
@@ -35,7 +36,6 @@
   .gain.down { color: var(--red); background: rgba(229,57,53,0.08); }
   .hero-banner .meta { font-size: 12px; color: var(--secondary); margin-top: 2px; }
 
-  /* ETF Tabs */
   .etf-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
   .etf-tab {
     padding: 10px 18px; border-radius: 10px; border: 1px solid var(--border);
@@ -49,7 +49,6 @@
   .etf-tab.active .tab-dot { background: #fff; }
   .etf-tab .tab-change { font-size: 11px; opacity: 0.85; }
 
-  /* Chart Card */
   .chart-card {
     background: var(--card); border-radius: var(--radius); padding: 24px 28px;
     box-shadow: var(--shadow); margin-bottom: 16px;
@@ -71,7 +70,6 @@
   .chart-wrap.vol { position: relative; height: 120px; margin-top: 4px; }
   .chart-divider { border-top: 1px dashed var(--border); margin: 8px 0 0; }
 
-  /* Donut row */
   .mini-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px; }
   .mini-card {
     background: var(--card); border-radius: var(--radius); padding: 20px 22px;
@@ -85,7 +83,6 @@
   .mini-legend .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .mini-legend .val { margin-left: auto; font-weight: 600; font-size: 12px; }
 
-  /* Holdings */
   .holdings-card {
     background: var(--card); border-radius: var(--radius); padding: 20px 24px;
     box-shadow: var(--shadow); margin-bottom: 16px;
@@ -115,7 +112,6 @@
   .h-change .pct.up { color: var(--green); background: rgba(76,175,80,0.08); }
   .h-change .pct.down { color: var(--red); background: rgba(229,57,53,0.08); }
 
-  /* Footer */
   .footer-card {
     background: var(--card); border-radius: var(--radius); padding: 18px 24px;
     box-shadow: var(--shadow); display: flex; justify-content: space-between;
@@ -127,6 +123,7 @@
 
   .loading { text-align: center; padding: 40px; color: var(--secondary); font-size: 13px; }
   .err-msg { color: var(--secondary); font-size: 12px; text-align: center; padding: 10px; }
+  .data-source { font-size: 10px; color: var(--secondary); text-align: right; padding: 4px 0; }
 
   @media (max-width: 768px) {
     body { padding: 12px 8px; }
@@ -145,7 +142,6 @@
 <div class="container">
   <div class="date-label" id="dateLabel">--</div>
 
-  <!-- Hero -->
   <div class="hero-banner">
     <div>
       <div class="label">资产总值</div>
@@ -158,10 +154,8 @@
     </div>
   </div>
 
-  <!-- ETF Tabs -->
   <div class="etf-tabs" id="etfTabs"></div>
 
-  <!-- Main Chart -->
   <div class="chart-card">
     <div class="chart-toolbar">
       <h3 id="chartTitle">--</h3>
@@ -176,7 +170,6 @@
     <div class="err-msg" id="chartMsg" style="display:none"></div>
   </div>
 
-  <!-- Donut + Stats -->
   <div class="mini-row">
     <div class="mini-card">
       <h3>资产配置</h3>
@@ -191,13 +184,13 @@
     </div>
   </div>
 
-  <!-- Holdings -->
   <div class="holdings-card">
     <h3>持仓明细</h3>
     <div id="holdingsList"></div>
   </div>
 
-  <!-- Footer -->
+  <div class="data-source" id="dataSource">数据加载中...</div>
+
   <div class="footer-card">
     <div class="disclaimer">数据仅供参考，不构成投资建议。过往表现不代表未来收益。投资有风险，入市需谨慎。</div>
     <div class="tags"><span class="tag">#投资组合</span><span class="tag">#资产配置</span><span class="tag">#ETF</span></div>
@@ -205,57 +198,64 @@
 </div>
 
 <script>
-// ---- Config ----
 const ETF_CONFIG = [
-  { code: '515080', name: '中证红利ETF', c: 'h-c1', cc: '#FF7F50', label: '红利', secid: '1.515080' },
-  { code: '588000', name: '科创50ETF',   c: 'h-c2', cc: '#4A90D9', label: '科创', secid: '1.588000' },
-  { code: '512010', name: '医药ETF',     c: 'h-c3', cc: '#7CB342', label: '医药', secid: '1.512010' },
-  { code: '589720', name: '创新药ETF',   c: 'h-c4', cc: '#9B59B6', label: '创新药', secid: '1.589720' }
+  { code:'515080', name:'中证红利ETF', c:'h-c1', cc:'#FF7F50', label:'红利', secid:'1.515080' },
+  { code:'588000', name:'科创50ETF',   c:'h-c2', cc:'#4A90D9', label:'科创', secid:'1.588000' },
+  { code:'512010', name:'医药ETF',     c:'h-c3', cc:'#7CB342', label:'医药', secid:'1.512010' },
+  { code:'589720', name:'创新药ETF',   c:'h-c4', cc:'#9B59B6', label:'创新药', secid:'1.589720' }
 ];
 const HOLDINGS = [50000, 30000, 80000, 60000];
 const PERIODS = [
-  { label: '1月', days: 22 }, { label: '3月', days: 66 },
-  { label: '6月', days: 132 }, { label: '1年', days: 253 },
-  { label: '3年', days: 760 }
+  { label:'1月', days:22 }, { label:'3月', days:66 },
+  { label:'6月', days:132 }, { label:'1年', days:253 }, { label:'3年', days:760 }
 ];
 const FREQS = [
-  { label: '日线', klt: 101 }, { label: '周线', klt: 102 }, { label: '月线', klt: 103 }
+  { label:'日线', klt:101 }, { label:'周线', klt:102 }, { label:'月线', klt:103 }
 ];
 
-let state = { etfIdx: 0, periodIdx: 3, freqIdx: 0, etfData: [], historyCache: {} };
-let priceChart = null, volChart = null, donutChart = null;
+let state = { etfIdx:0, periodIdx:3, freqIdx:0, etfData:[], historyCache:{}, dataSource:'API' };
+let priceChart=null, volChart=null, donutChart=null;
 
-// ---- Mock (fallback) ----
-function mockData() {
-  const d = new Date().getDate();
-  const rnd = (b,r) => +(b + (Math.sin(d*7+b*3)*0.5+0.5)*r).toFixed(3);
-  return [
-    { price: rnd(1.58,0.08), change: rnd(0.3,1.2), vol: rnd(2.3,1.5), turnover: rnd(3.8,2) },
-    { price: rnd(1.64,0.12), change: rnd(-0.5,2), vol: rnd(6.5,3), turnover: rnd(10.7,4) },
-    { price: rnd(0.48,0.04), change: rnd(0.8,1.5), vol: rnd(8,4), turnover: rnd(4.1,2) },
-    { price: rnd(0.92,0.06), change: rnd(-0.2,1.8), vol: rnd(1.8,1), turnover: rnd(1.6,0.8) }
-  ];
+// ---- 实时行情 API (东方财富) ----
+async function fetchRealtime() {
+  const secids = ETF_CONFIG.map(c=>c.secid).join(',');
+  const url = `https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=${secids}&fields=f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f14`;
+  const resp = await fetch(url);
+  const json = await resp.json();
+  if (!json || !json.data || !json.data.diff) throw new Error('API无数据');
+  const map = {};
+  for (const item of json.data.diff) {
+    map[item.f12] = {
+      code: item.f12,
+      name: item.f14,
+      price: item.f2/100,
+      change: item.f3,
+      changeAmount: item.f4/100,
+      volume: item.f5,
+      turnover: item.f6/100000000,
+      amplitude: item.f7/100,
+      high: item.f8/100,
+      low: item.f9/100,
+      open: item.f10/100
+    };
+  }
+  return ETF_CONFIG.map(c => map[c.code] || null);
 }
 
-// ---- API fetch ----
+// ---- 历史K线 API (东方财富) ----
 async function fetchHistory(secid, klt, beg, end) {
   const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57&klt=${klt}&fqt=0&beg=${beg}&end=${end}&lmt=800`;
   const resp = await fetch(url);
   const json = await resp.json();
   if (!json || !json.data || !json.data.klines) return [];
-  return json.data.klines.map(line => {
-    const parts = line.split(',');
-    return {
-      date: parts[0],
-      open: +parts[1], close: +parts[2], high: +parts[3], low: +parts[4],
-      volume: +parts[5], turnover: +parts[6]
-    };
+  return json.data.klines.map(line=>{
+    const p = line.split(',');
+    return { date:p[0], open:+p[1], close:+p[2], high:+p[3], low:+p[4], volume:+p[5], turnover:+p[6] };
   });
 }
 
 function begEnd(periodDays) {
-  const end = new Date();
-  end.setHours(23,59,59,999);
+  const end = new Date(); end.setHours(23,59,59,999);
   const start = new Date(end);
   start.setDate(start.getDate() - Math.ceil(periodDays * 1.5));
   const fmt = d => d.toISOString().slice(0,10).replace(/-/g,'');
@@ -266,27 +266,31 @@ function begEnd(periodDays) {
 function renderDate() {
   const w = ['日','一','二','三','四','五','六'];
   const n = new Date();
-  document.getElementById('dateLabel').textContent = `${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日 星期${w[n.getDay()]} · 复盘报告`;
+  document.getElementById('dateLabel').innerHTML = `<span class="live-dot"></span>${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日 星期${w[n.getDay()]} · 实时数据`;
 }
 
 function renderTabs() {
   const el = document.getElementById('etfTabs');
-  el.innerHTML = ETF_CONFIG.map((c,i) => {
-    const d = state.etfData[i] || {};
-    const up = (d.change||0) >= 0;
-    const cls = i === state.etfIdx ? 'active' : '';
+  el.innerHTML = ETF_CONFIG.map((c,i)=>{
+    const d = state.etfData[i];
+    if (!d) return '';
+    const up = d.change >= 0;
+    const cls = i===state.etfIdx?'active':'';
     return `<button class="etf-tab ${cls}" onclick="switchETF(${i})">
       <span class="tab-dot" style="background:${c.cc}"></span>
-      ${c.name} <span class="tab-change" style="color:${up?'var(--green)':'var(--red)'}">${up?'+':''}${(d.change||0).toFixed(2)}%</span>
+      ${c.name} <span class="tab-change" style="color:${up?'var(--green)':'var(--red)'}">${up?'+':''}${d.change.toFixed(2)}%</span>
     </button>`;
   }).join('');
 }
 
 function renderHero() {
-  if (!state.etfData.length) return;
-  const total = state.etfData.reduce((s,d,i) => s + HOLDINGS[i]*d.price, 0);
-  const prev = state.etfData.reduce((s,d,i) => s + HOLDINGS[i]*(d.price - d.price*d.change/100), 0);
-  const gp = prev>0 ? ((total-prev)/prev*100) : 0;
+  if (!state.etfData.length || !state.etfData[0]) return;
+  const total = state.etfData.reduce((s,d,i)=>s+(d?HOLDINGS[i]*d.price:0),0);
+  const prev = state.etfData.reduce((s,d,i)=>{
+    if (!d) return s;
+    return s + HOLDINGS[i]*(d.price - d.price*d.change/100);
+  },0);
+  const gp = prev>0?((total-prev)/prev*100):0;
   document.getElementById('totalValue').textContent = '¥'+total.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('holdingsCount').textContent = `共持有 ${ETF_CONFIG.length} 只 ETF`;
   const g = document.getElementById('totalGain');
@@ -296,13 +300,12 @@ function renderHero() {
 }
 
 function renderPeriodBtns() {
-  document.getElementById('periodBtns').innerHTML = PERIODS.map((p,i) =>
+  document.getElementById('periodBtns').innerHTML = PERIODS.map((p,i)=>
     `<button class="btn-sm ${i===state.periodIdx?'active':''}" onclick="switchPeriod(${i})">${p.label}</button>`
   ).join('');
 }
-
 function renderFreqBtns() {
-  document.getElementById('freqBtns').innerHTML = FREQS.map((f,i) =>
+  document.getElementById('freqBtns').innerHTML = FREQS.map((f,i)=>
     `<button class="btn-sm ${i===state.freqIdx?'active':''}" onclick="switchFreq(${i})">${f.label}</button>`
   ).join('');
 }
@@ -310,51 +313,25 @@ function renderFreqBtns() {
 function renderPriceChart(history) {
   const ctx = document.getElementById('priceChart').getContext('2d');
   if (priceChart) priceChart.destroy();
-  const labels = history.map(h => h.date.slice(5));
-  const closes = history.map(h => h.close);
-
+  const labels = history.map(h=>h.date.slice(5));
+  const closes = history.map(h=>h.close);
   const gradient = ctx.createLinearGradient(0,0,0,280);
-  gradient.addColorStop(0, 'rgba(255,127,80,0.15)');
-  gradient.addColorStop(1, 'rgba(255,127,80,0)');
-
+  gradient.addColorStop(0,'rgba(255,127,80,0.15)');
+  gradient.addColorStop(1,'rgba(255,127,80,0.02)');
   priceChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: '收盘价',
-        data: closes,
-        borderColor: ETF_CONFIG[state.etfIdx].cc,
-        borderWidth: 1.8,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        pointHoverBackgroundColor: ETF_CONFIG[state.etfIdx].cc,
-        fill: true,
-        backgroundColor: gradient,
-        tension: 0.3
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { intersect: false, mode: 'index' },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => '收盘 ¥' + ctx.raw.toFixed(3)
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { color: '#757575', font: { size: 10 }, maxTicksLimit: 8, autoSkip: true },
-          grid: { display: false }
-        },
-        y: {
-          position: 'right',
-          ticks: { color: '#757575', font: { size: 10 }, callback: v => '¥'+v.toFixed(3), maxTicksLimit: 6 },
-          grid: { color: 'rgba(0,0,0,0.04)' }
-        }
+    type:'line', data:{labels,datasets:[{
+      label:'收盘价',data:closes,borderColor:ETF_CONFIG[state.etfIdx].cc,
+      borderWidth:1.8,pointRadius:0,pointHoverRadius:4,
+      pointHoverBackgroundColor:ETF_CONFIG[state.etfIdx].cc,
+      fill:true,backgroundColor:gradient,tension:0.3
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{intersect:false,mode:'index'},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'收盘 ¥'+ctx.raw.toFixed(3)}}},
+      scales:{
+        x:{ticks:{color:'#757575',font:{size:10},maxTicksLimit:8},grid:{display:false}},
+        y:{position:'right',ticks:{color:'#757575',font:{size:10},callback:v=>'¥'+v.toFixed(3),maxTicksLimit:6},grid:{color:'rgba(0,0,0,0.04)'}}
       }
     }
   });
@@ -363,67 +340,37 @@ function renderPriceChart(history) {
 function renderVolChart(history) {
   const ctx = document.getElementById('volChart').getContext('2d');
   if (volChart) volChart.destroy();
-  const labels = history.map(h => h.date.slice(5));
-  const volumes = history.map(h => h.volume);
-  const closes = history.map(h => h.close);
+  const labels = history.map(h=>h.date.slice(5));
+  const volumes = history.map(h=>h.volume);
+  const closes = history.map(h=>h.close);
   const colors = [];
-  for (let i=0; i<history.length; i++) {
-    const prev = i>0 ? closes[i-1] : closes[i];
-    colors.push(closes[i] >= prev ? 'rgba(229,57,53,0.45)' : 'rgba(76,175,80,0.45)');
+  for (let i=0;i<history.length;i++) {
+    const prev = i>0?closes[i-1]:closes[i];
+    colors.push(closes[i]>=prev?'rgba(229,57,53,0.45)':'rgba(76,175,80,0.45)');
   }
   volChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: '成交量(手)',
-        data: volumes,
-        backgroundColor: colors,
-        borderWidth: 0,
-        borderRadius: 2
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => (ctx.raw/10000).toFixed(1)+'万手' } }
-      },
-      scales: {
-        x: {
-          ticks: { display: false },
-          grid: { display: false }
-        },
-        y: {
-          position: 'right',
-          ticks: { color: '#757575', font: { size: 9 }, callback: v => (v/10000).toFixed(0)+'万', maxTicksLimit: 4 },
-          grid: { color: 'rgba(0,0,0,0.04)' }
-        }
+    type:'bar',data:{labels,datasets:[{label:'成交量(手)',data:volumes,backgroundColor:colors,borderWidth:0,borderRadius:2}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>(ctx.raw/10000).toFixed(1)+'万手'}}},
+      scales:{
+        x:{ticks:{display:false},grid:{display:false}},
+        y:{position:'right',ticks:{color:'#757575',font:{size:9},callback:v=>(v/10000).toFixed(0)+'万',maxTicksLimit:4},grid:{color:'rgba(0,0,0,0.04)'}}
       }
     }
   });
 }
 
 function renderDonut() {
-  if (!state.etfData.length) return;
+  if (!state.etfData.length || !state.etfData[0]) return;
   const ctx = document.getElementById('donutChart').getContext('2d');
   if (donutChart) donutChart.destroy();
-  const values = state.etfData.map((d,i) => HOLDINGS[i]*d.price);
+  const values = state.etfData.map((d,i)=>d?HOLDINGS[i]*d.price:0);
   const total = values.reduce((a,b)=>a+b,0);
+  if (total===0) return;
   donutChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ETF_CONFIG.map(c=>c.name),
-      datasets: [{
-        data: values,
-        backgroundColor: ETF_CONFIG.map(c=>c.cc),
-        borderColor: '#fff', borderWidth: 3, borderRadius: 4
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: true, cutout: '68%',
-      plugins: { legend: { display: false } }
-    }
+    type:'doughnut',data:{labels:ETF_CONFIG.map(c=>c.name),datasets:[{data:values,backgroundColor:ETF_CONFIG.map(c=>c.cc),borderColor:'#fff',borderWidth:3,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:true,cutout:'68%',plugins:{legend:{display:false}}}
   });
   document.getElementById('donutLegend').innerHTML = ETF_CONFIG.map((c,i)=>{
     const pct = ((values[i]/total)*100).toFixed(1);
@@ -434,51 +381,37 @@ function renderDonut() {
 function renderDayStats() {
   const d = state.etfData[state.etfIdx];
   if (!d) return;
+  const cfg = ETF_CONFIG[state.etfIdx];
   document.getElementById('dayStats').innerHTML = `
-    收盘价 <b style="color:var(--hero)">¥${d.price.toFixed(3)}</b><br>
+    最新价 <b style="color:var(--hero)">¥${d.price.toFixed(3)}</b><br>
     涨跌幅 <b style="color:${d.change>=0?'var(--green)':'var(--red)'}">${d.change>=0?'+':''}${d.change.toFixed(2)}%</b><br>
-    成交量 <b style="color:var(--hero)">${d.vol.toFixed(1)}亿手</b><br>
-    成交额 <b style="color:var(--hero)">${d.turnover.toFixed(2)}亿</b>
+    开盘 <b style="color:var(--hero)">¥${(d.open||0).toFixed(3)}</b> &nbsp; 最高 <b style="color:var(--red)">¥${(d.high||0).toFixed(3)}</b><br>
+    最低 <b style="color:var(--green)">¥${(d.low||0).toFixed(3)}</b> &nbsp; 振幅 <b style="color:var(--hero)">${((d.amplitude||0)*100).toFixed(2)}%</b><br>
+    成交量 <b style="color:var(--hero)">${(d.volume/10000).toFixed(1)}万手</b><br>
+    成交额 <b style="color:var(--hero)">${(d.turnover||0).toFixed(2)}亿</b>
   `;
 }
 
 function renderHoldings() {
   document.getElementById('holdingsList').innerHTML = state.etfData.map((d,i)=>{
+    if (!d) return '';
     const cfg = ETF_CONFIG[i];
     const up = d.change>=0;
     const mv = HOLDINGS[i]*d.price;
-    const avgCost = [1.56,1.62,0.46,0.90][i];
-    const totalGain = ((d.price-avgCost)/avgCost*100);
-    const sel = i===state.etfIdx ? ' selected' : '';
+    const sel = i===state.etfIdx?' selected':'';
     return `<div class="holding-row${sel}" onclick="switchETF(${i})">
       <div class="h-icon ${cfg.c}">${cfg.label}</div>
       <div class="h-info"><div class="name">${cfg.name}</div><div class="code">${cfg.code} · ${(HOLDINGS[i]/10000).toFixed(1)}万份</div></div>
       <div class="h-price"><div class="val">¥${d.price.toFixed(3)}</div><div class="lbl">市值 ¥${(mv/10000).toFixed(1)}万</div></div>
-      <div class="h-change"><span class="pct ${up?'up':'down'}">${up?'+':''}${d.change.toFixed(2)}%</span><div class="lbl" style="margin-top:2px;font-size:10px;color:${totalGain>=0?'var(--green)':'var(--red)'}">持仓${totalGain>=0?'+':''}${totalGain.toFixed(2)}%</div></div>
+      <div class="h-change"><span class="pct ${up?'up':'down'}">${up?'+':''}${d.change.toFixed(2)}%</span></div>
     </div>`;
   }).join('');
 }
 
 // ---- Actions ----
-function switchETF(idx) {
-  state.etfIdx = idx;
-  renderTabs();
-  renderHoldings();
-  renderDayStats();
-  loadChart();
-}
-
-function switchPeriod(idx) {
-  state.periodIdx = idx;
-  renderPeriodBtns();
-  loadChart();
-}
-
-function switchFreq(idx) {
-  state.freqIdx = idx;
-  renderFreqBtns();
-  loadChart();
-}
+function switchETF(idx){ state.etfIdx=idx; renderTabs(); renderHoldings(); renderDayStats(); loadChart(); }
+function switchPeriod(idx){ state.periodIdx=idx; renderPeriodBtns(); loadChart(); }
+function switchFreq(idx){ state.freqIdx=idx; renderFreqBtns(); loadChart(); }
 
 async function loadChart() {
   const cfg = ETF_CONFIG[state.etfIdx];
@@ -486,7 +419,8 @@ async function loadChart() {
   const period = PERIODS[state.periodIdx];
   document.getElementById('chartTitle').textContent = `${cfg.name} (${cfg.code}) · ${period.label}·${freq.label}`;
   const cacheKey = `${cfg.secid}_${freq.klt}_${period.days}`;
-  document.getElementById('chartMsg').style.display = 'none';
+  const msgEl = document.getElementById('chartMsg');
+  msgEl.style.display = 'none';
 
   let history = state.historyCache[cacheKey];
   if (!history) {
@@ -498,27 +432,20 @@ async function loadChart() {
   }
 
   if (!history || history.length === 0) {
-    // Generate mock history as fallback
     const d = state.etfData[state.etfIdx];
-    const basePrice = d ? d.price : 1.5;
-    const baseVol = d ? d.vol * 10000 : 50000;
+    const bp = d?d.price:1.5;
     const points = Math.min(period.days, 200);
     history = [];
-    for (let i = points; i >= 0; i--) {
-      const dt = new Date(); dt.setDate(dt.getDate() - i * (freq.klt===103?22:freq.klt===102?5:1));
-      const noise = (Math.random()-0.5)*0.04;
-      const price = basePrice * (1 + noise + Math.sin(i*0.15)*0.06);
+    for (let i=points;i>=0;i--) {
+      const dt = new Date(); dt.setDate(dt.getDate()-i*(freq.klt===103?22:freq.klt===102?5:1));
       history.push({
-        date: dt.toISOString().slice(0,10),
-        open: price*(1+(Math.random()-0.5)*0.01),
-        close: price, high: price*1.01, low: price*0.99,
-        volume: baseVol*(0.5+Math.random()), turnover: baseVol*price*(0.5+Math.random())
+        date:dt.toISOString().slice(0,10), open:bp, close:bp*(1+(Math.random()-0.5)*0.02),
+        high:bp*1.01, low:bp*0.99, volume:50000*(0.5+Math.random()), turnover:50000*bp
       });
     }
-    document.getElementById('chartMsg').style.display = 'block';
-    document.getElementById('chartMsg').textContent = '使用模拟数据（API无法访问或该ETF历史数据不足）';
+    msgEl.style.display = 'block';
+    msgEl.textContent = '使用模拟历史数据（该ETF历史K线不足或API超时）';
   }
-
   renderPriceChart(history);
   renderVolChart(history);
 }
@@ -526,11 +453,42 @@ async function loadChart() {
 // ---- Init ----
 async function init() {
   renderDate();
-  state.etfData = mockData();
+  document.getElementById('dataSource').textContent = '正在从东方财富获取实时行情...';
+
+  // 1. 优先实时API
   try {
-    const resp = await fetch('etf-data.json?'+Date.now());
-    if (resp.ok) { const j = await resp.json(); if (Array.isArray(j) && j.length===4) state.etfData = j; }
-  } catch(_) {}
+    const rt = await fetchRealtime();
+    if (rt.every(d=>d!==null)) {
+      state.etfData = rt;
+      state.dataSource = 'API';
+      document.getElementById('dataSource').innerHTML = '<span class="live-dot"></span>数据来源：东方财富实时行情';
+    }
+  } catch(e) {
+    // 2. 降级本地JSON
+    try {
+      const resp = await fetch('etf-data.json?'+Date.now());
+      if (resp.ok) {
+        const j = await resp.json();
+        if (Array.isArray(j) && j.length===4) {
+          state.etfData = j;
+          state.dataSource = 'local';
+          document.getElementById('dataSource').textContent = '数据来源：本地复盘文件（实时API不可用）';
+        }
+      }
+    } catch(_) {}
+  }
+
+  // 3. 确保数据完整
+  if (!state.etfData.length || state.etfData.some(d=>!d)) {
+    state.etfData = [
+      { code:'515080',name:'中证红利ETF',price:1.585,change:0.35,volume:230000000,turnover:3.8,open:1.580,high:1.590,low:1.575,amplitude:0.0095 },
+      { code:'588000',name:'科创50ETF',price:1.636,change:-1.20,volume:650000000,turnover:10.7,open:1.650,high:1.660,low:1.630,amplitude:0.018 },
+      { code:'512010',name:'医药ETF',price:0.482,change:0.80,volume:800000000,turnover:4.1,open:0.478,high:0.485,low:0.476,amplitude:0.019 },
+      { code:'589720',name:'创新药ETF',price:0.918,change:-0.55,volume:180000000,turnover:1.6,open:0.922,high:0.928,low:0.915,amplitude:0.014 }
+    ];
+    state.dataSource = 'mock';
+    document.getElementById('dataSource').textContent = '数据来源：离线模拟（非交易时段或网络异常）';
+  }
 
   renderTabs();
   renderHero();
@@ -540,6 +498,19 @@ async function init() {
   renderPeriodBtns();
   renderFreqBtns();
   loadChart();
+
+  // 盘中自动刷新（每30秒）
+  if (state.dataSource === 'API') {
+    setInterval(async () => {
+      try {
+        const rt = await fetchRealtime();
+        if (rt.every(d=>d!==null)) {
+          state.etfData = rt;
+          renderTabs(); renderHero(); renderDonut(); renderHoldings(); renderDayStats();
+        }
+      } catch(_) {}
+    }, 30000);
+  }
 }
 
 init();
