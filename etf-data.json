@@ -1,6 +1,6 @@
 [
-  {"code": "515080", "name": "中证红利ETF", "price": 1.555, "change": 0.39, "volume": 1.62, "turnover": 2.52, "news": "央行加码煤炭能源保供，主力资金流入同类第一"},
-  {"code": "588000", "name": "科创50ETF", "price": 1.814, "change": 0.11, "volume": 31.50, "turnover": 57.00, "news": "半导体多数上涨，中芯国际Q2营收破30亿美元"},
-  {"code": "512010", "name": "医药ETF", "price": 0.395, "change": -1.50, "volume": 14.31, "turnover": 5.67, "news": "7月新增新冠病例超52万例，板块整体回调"},
-  {"code": "589720", "name": "创新药ETF", "price": 0.980, "change": -0.41, "volume": 13.79, "turnover": 13.48, "news": "上海20条落地，允许未盈利企业再融资利好"}
+  {"code":"515080","name":"中证红利ETF","price":1.555,"change":0.39,"volume":1.62,"turnover":2.52,"news":"红利板块分化，煤炭股走强带动中证红利小幅收涨"},
+  {"code":"588000","name":"科创50ETF","price":1.814,"change":0.11,"volume":31.50,"turnover":57.00,"news":"中芯国际Q2营收环比增20%超预期，半导体存储链走强"},
+  {"code":"512010","name":"医药ETF","price":0.395,"change":-1.50,"volume":14.31,"turnover":5.67,"news":"医药生物板块回调，资金净流出居前"},
+  {"code":"589720","name":"创新药ETF","price":0.980,"change":-0.41,"volume":13.79,"turnover":13.48,"news":"创新药入医保周期缩短至半年，板块短期回调整固"}
 ]
