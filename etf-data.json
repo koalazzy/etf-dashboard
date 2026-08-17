@@ -1,6 +1,6 @@
 [
-  {"code":"515080","name":"中证红利ETF","price":1.555,"change":0.39,"volume":1.62,"turnover":2.52,"news":"红利板块分化，煤炭股走强带动中证红利小幅收涨"},
-  {"code":"588000","name":"科创50ETF","price":1.814,"change":0.11,"volume":31.50,"turnover":57.00,"news":"中芯国际Q2营收环比增20%超预期，半导体存储链走强"},
-  {"code":"512010","name":"医药ETF","price":0.395,"change":-1.50,"volume":14.31,"turnover":5.67,"news":"医药生物板块回调，资金净流出居前"},
-  {"code":"589720","name":"创新药ETF","price":0.980,"change":-0.41,"volume":13.79,"turnover":13.48,"news":"创新药入医保周期缩短至半年，板块短期回调整固"}
+  {"code": "515080", "name": "中证红利ETF", "price": 1.559, "change": 0.26, "volume": 1.86, "turnover": 2.89, "news": "央企市值管理纳入考核，分红底线确立，红利资产配置价值凸显"},
+  {"code": "588000", "name": "科创50ETF", "price": 1.888, "change": 4.08, "volume": 42.27, "turnover": 78.45, "news": "SK海力士称明年最严重存储荒，半导体产业链爆发，主力净流入20.66亿"},
+  {"code": "512010", "name": "医药ETF", "price": 0.401, "change": 1.52, "volume": 13.66, "turnover": 5.45, "news": "药明康德A+H市值破5000亿，CXO景气修复，板块估值历史低位"},
+  {"code": "589720", "name": "创新药ETF", "price": 0.979, "change": -0.10, "volume": 11.05, "turnover": 10.77, "news": "创新药出海趋势强化，短期高位获利回吐，主力净流出7493万"}
 ]
